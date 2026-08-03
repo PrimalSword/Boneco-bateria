@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Voltinho</string>
+    <string name="notification_channel_name">Mascote da bateria</string>
+    <string name="notification_channel_description">Mantém o mascote visível enquanto o recurso está ativo.</string>
+    <string name="notification_title">Voltinho está acompanhando sua bateria</string>
+    <string name="notification_stop">Desativar</string>
+</resources>
