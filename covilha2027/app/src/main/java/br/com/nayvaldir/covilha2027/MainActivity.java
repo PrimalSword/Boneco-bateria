@@ -1,5 +1,7 @@
 package br.com.nayvaldir.covilha2027;
 import android.app.*;
+import android.Manifest;
+import android.provider.Settings;
 import android.os.*;
 import android.content.*;
 import android.graphics.Color;
@@ -15,7 +17,22 @@ public class MainActivity extends Activity {
  getWindow().setStatusBarColor(Color.rgb(18,18,18));
  getWindow().setNavigationBarColor(Color.rgb(18,18,18));
  LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(0xff121212);
- progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setMax(100);root.addView(progress,new LinearLayout.LayoutParams(-1,5));
+ LinearLayout controls=new LinearLayout(this);controls.setOrientation(LinearLayout.HORIZONTAL);controls.setPadding(8,4,8,4);
+Button toggle=new Button(this);toggle.setText("€ Ativar flutuante");controls.addView(toggle,new LinearLayout.LayoutParams(0,-2,1));
+Button off=new Button(this);off.setText("Ocultar €");controls.addView(off,new LinearLayout.LayoutParams(0,-2,1));
+root.addView(controls);
+toggle.setOnClickListener(v->{
+ if(!Settings.canDrawOverlays(this)){
+  startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,Uri.parse("package:"+getPackageName())));
+  Toast.makeText(this,"Autorize a sobreposição e toque em Ativar novamente.",Toast.LENGTH_LONG).show();return;
+ }
+ if(Build.VERSION.SDK_INT>=33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=getPackageManager().PERMISSION_GRANTED)
+  requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},12);
+ try{startForegroundService(new Intent(this,EuroService.class));Toast.makeText(this,"Cotação flutuante ativada",Toast.LENGTH_SHORT).show();}
+ catch(Exception e){Toast.makeText(this,"Falha ao iniciar: "+e.getMessage(),Toast.LENGTH_LONG).show();}
+});
+off.setOnClickListener(v->{stopService(new Intent(this,EuroService.class));Toast.makeText(this,"Cotação flutuante desativada",Toast.LENGTH_SHORT).show();});
+progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setMax(100);root.addView(progress,new LinearLayout.LayoutParams(-1,5));
  web=new WebView(this);web.setBackgroundColor(0xff121212);root.addView(web,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);
  WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setDatabaseEnabled(true);s.setAllowFileAccess(false);s.setAllowContentAccess(true);s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);s.setMediaPlaybackRequiresUserGesture(false);
  CookieManager.getInstance().setAcceptCookie(true);CookieManager.getInstance().setAcceptThirdPartyCookies(web,true);
