@@ -29,11 +29,14 @@ public class EuroService extends Service {
  try(InputStream stream=conn.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()){
  byte[] buf=new byte[4096];int n;while((n=stream.read(buf))!=-1)out.write(buf,0,n);
  JSONObject quote=new JSONObject(out.toString("UTF-8")).getJSONObject("EURBRL");
- double mid=(quote.getDouble("bid")+quote.getDouble("ask"))/2.0;
- result="€ "+String.format(new Locale("pt","BR"),"%.3f",mid);
- getSharedPreferences("quote",MODE_PRIVATE).edit().putString("last",result).apply();
+ double ask=quote.getDouble("ask");
+ long quoteTime=quote.getLong("timestamp")*1000L;
+ long age=System.currentTimeMillis()-quoteTime;
+ boolean stale=age>15*60*1000L;
+ result="€ "+String.format(new Locale("pt","BR"),"%.4f",ask)+(stale?" ·":"");
+ getSharedPreferences("quote",MODE_PRIVATE).edit().putString("last",result).putLong("quoteTime",quoteTime).apply();
  }finally{conn.disconnect();}
- }catch(Exception e){result=getSharedPreferences("quote",MODE_PRIVATE).getString("last","€ --,---")+" · offline";}
+ }catch(Exception e){result=getSharedPreferences("quote",MODE_PRIVATE).getString("last","€ --,----")+" !";}
  final String display=result;main.post(()->{if(label!=null)label.setText(display);});
  });
  main.postDelayed(this,5*60*1000L);
@@ -47,10 +50,10 @@ public class EuroService extends Service {
  startForeground(1,notification);
  if(!Settings.canDrawOverlays(this)){stopSelf();return;}
  wm=(WindowManager)getSystemService(WINDOW_SERVICE);
- label=new TextView(this);label.setText("€ --,---");label.setTextSize(15);label.setTextColor(Color.WHITE);label.setPadding(20,10,20,10);
+ label=new TextView(this);label.setText("€ --,---");label.setTextSize(13);label.setTextColor(Color.WHITE);label.setPadding(14,7,14,7);
  GradientDrawable bg=new GradientDrawable();bg.setColor(0xDD18251D);bg.setCornerRadius(28);label.setBackground(bg);
  params=new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,PixelFormat.TRANSLUCENT);
- params.gravity=Gravity.TOP|Gravity.START;params.x=12;params.y=80;
+ params.gravity=Gravity.TOP|Gravity.START;params.x=12;params.y=125;
  label.setOnTouchListener(new View.OnTouchListener(){
  float downX,downY;int startX,startY;
  @Override public boolean onTouch(View v,MotionEvent e){
