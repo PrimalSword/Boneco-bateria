@@ -17,10 +17,10 @@ public class MainActivity extends Activity {
  getWindow().setStatusBarColor(Color.rgb(18,18,18));
  getWindow().setNavigationBarColor(Color.rgb(18,18,18));
  LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(0xff121212);
- LinearLayout controls=new LinearLayout(this);controls.setOrientation(LinearLayout.HORIZONTAL);controls.setPadding(8,4,8,4);
-Button toggle=new Button(this);toggle.setText("€ Ativar flutuante");controls.addView(toggle,new LinearLayout.LayoutParams(0,-2,1));
-Button off=new Button(this);off.setText("Ocultar €");controls.addView(off,new LinearLayout.LayoutParams(0,-2,1));
-root.addView(controls);
+ LinearLayout controls=new LinearLayout(this);controls.setOrientation(LinearLayout.HORIZONTAL);controls.setPadding(4,0,4,0);
+Button toggle=new Button(this);toggle.setText("€ Ativar");controls.addView(toggle,new LinearLayout.LayoutParams(0,48,1));
+Button off=new Button(this);off.setText("Ocultar €");controls.addView(off,new LinearLayout.LayoutParams(0,48,1));
+root.addView(controls,new LinearLayout.LayoutParams(-1,52));
 toggle.setOnClickListener(v->{
  if(!Settings.canDrawOverlays(this)){
   startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,Uri.parse("package:"+getPackageName())));
